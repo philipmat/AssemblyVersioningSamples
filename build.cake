@@ -1,9 +1,12 @@
 #tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
+#addin nuget:?package=Cake.Git
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
 var buildDir = Directory("./TestAssemblyVersioning/bin") + Directory(configuration);
 var sln = File("./TestAssemblyVersioning.sln");
+var thisRepo = MakeAbsolute(Directory("./"));
+var assemblyInfo = File("./TestAssemblyVersioning/Properties/AssemblyInfo.cs");
 
 Task("Clean")
     .Does(() =>
@@ -18,7 +21,23 @@ Task("Restore-NuGet-Packages")
     NuGetRestore(sln);
 });
 
+Task("Version")
+	.Does(() => 
+{
+	var branch = GitBranchCurrent(thisRepo);
+	Information(branch);
+	// var latest = GitLogTip(thisRepo);
+	// Information(latest);
+	var sha = branch.Tip.Sha.Substring(0, 6); // Not right - should use LibGit2Sharp's ObjectDatabase.ShortenObjectId()
+	//*
+	CreateAssemblyInfo(assemblyInfo, new AssemblyInfoSettings {
+		InformationalVersion = string.Format("1.0.{0}.{1}", sha, branch.FriendlyName)
+	});
+	//*/
+});
+
 Task("Build")
+	.IsDependentOn("Version")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() =>
 {
@@ -34,6 +53,10 @@ Task("Build")
       XBuild(sln, settings =>
         settings.SetConfiguration(configuration));
     }
+})
+.Finally(() =>
+{
+	// restore assembly.cs files
 });
 
 Task("Run-Unit-Tests")
@@ -44,6 +67,7 @@ Task("Run-Unit-Tests")
         NoResults = true
         });
 });
+
 
 Task("Default")
     .IsDependentOn("Run-Unit-Tests");
