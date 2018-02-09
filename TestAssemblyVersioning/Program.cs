@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace TestAssemblyVersioning
@@ -11,11 +12,13 @@ namespace TestAssemblyVersioning
             var ver = ass.GetName(); // AssemblyFileVersion
             var fvi = FileVersionInfo.GetVersionInfo(ass.Location); // AssemblyInformationalVersion
 
-            Debug.WriteLine($@"
+            var version = $@"
 ass.GetName().Version = AssemblyVersion              = {ver.Version}
 fvi.FileVersion       = AssemblyFileVersion          = {fvi.FileVersion}
 fvi.ProductVersion    = AssemblyInformationalVersion = { fvi.ProductVersion }
-");
+";
+            Console.WriteLine(version);
+            Debug.WriteLine(version);
         }
     }
 }
