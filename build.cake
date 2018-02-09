@@ -6,7 +6,7 @@ var configuration = Argument("configuration", "Debug");
 var buildDir = Directory("./TestAssemblyVersioning/bin") + Directory(configuration);
 var sln = File("./TestAssemblyVersioning.sln");
 var thisRepo = MakeAbsolute(Directory("./"));
-var assemblyInfo = File("./TestAssemblyVersioning/Properties/AssemblyInfo.cs");
+var assemblyInfo = File("./TestAssemblyVersioning/Properties/AssemblyInfoVersion.cs");
 
 Task("Clean")
     .Does(() =>
@@ -57,15 +57,16 @@ Task("Build")
 .Finally(() =>
 {
 	// restore assembly.cs files
+	GitCheckout(thisRepo, new FilePath[] { assemblyInfo });
 });
 
 Task("Run-Unit-Tests")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    NUnit3("./**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings {
-        NoResults = true
-        });
+    // NUnit3("./**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings { NoResults = true });
+	StartProcess(buildDir + File("TestAssemblyVersioning.exe"));
+
 });
 
 
