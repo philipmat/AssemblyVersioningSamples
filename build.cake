@@ -28,10 +28,10 @@ Task("Version")
 	Information(branch);
 	// var latest = GitLogTip(thisRepo);
 	// Information(latest);
-	var sha = branch.Tip.Sha.Substring(0, 6); // Not right - should use LibGit2Sharp's ObjectDatabase.ShortenObjectId()
+	var sha = branch.Tip.Sha.Substring(0, 8); // Not right - should use LibGit2Sharp's ObjectDatabase.ShortenObjectId()
 	//*
 	CreateAssemblyInfo(assemblyInfo, new AssemblyInfoSettings {
-		InformationalVersion = string.Format("1.0.{0}.{1}", sha, branch.FriendlyName)
+		InformationalVersion = string.Format("1.0.{1}-{0}", sha, branch.FriendlyName)
 	});
 	//*/
 });
